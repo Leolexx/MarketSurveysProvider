@@ -3,17 +3,11 @@ package com.mrk.mm.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -46,21 +40,25 @@ public class ProviderMngImpl implements ProviderMng {
 	 */
 	@Override
 	public void loadSurvey() {
-		addSurvey(1, "81111601", "M", "ES", 31, "EUR", 20000);
-		addSurvey(2, "81111608", "M", "ES", 53, "EUR", 60000);
-		addSurvey(3, "81111608", "M", "RU", 23, "RUB", 24000);
-		addSurvey(4, "81111608", "M", "RU", 46, "RUB", 56000);
-		addSurvey(5, "81111608", "F", "ES", 21, "EUR", 25000);
-		addSurvey(6, "81111601", "M", "RU", 34, "RUB", 30000);
-		addSurvey(7, "81111601", "F", "RU", 26, "RUB", 35000);
-		addSurvey(8, "81111601", "F", "ES", 45, "EUR", 45000);
-		addSurvey(9, "81111601", "F", "US", 55, "USD", 55000);
-		addSurvey(10, "81111607", "M", "US", 47, "USD", 50000);
-		addSurvey(11, "81111608", "F", "US", 61, "USD", 51000);
-		addSurvey(12, "81111608", "F", "US", 21, "USD", 34000);
-		addSurvey(13, "81111608", "F", "ES", 34, "EUR", 55000);
-		addSurvey(14, "81111609", "M", "ES", 28, "EUR", 19000);
-		addSurvey(15, "81111608", "F", "RU", 28, "RUB", 39000);
+		addSurvey(1, "81111601", "M", "ES", 31, "EUR", 20000, "Any text data conserning this survey");
+		addSurvey(2, "81111608", "M", "ES", 53, "EUR", 60000, "text data - survey 2");
+		addSurvey(3, "81111608", "M", "RU", 23, "RUB", 24000, "text data - survey 3");
+		addSurvey(4, "81111608", "M", "RU", 46, "RUB", 56000, "text data - survey 4");
+		addSurvey(5, "81111608", "F", "ES", 21, "EUR", 25000, "text data - survey 5");
+		addSurvey(6, "81111601", "M", "RU", 34, "RUB", 30000, "text data - survey 6");
+		addSurvey(7, "81111601", "F", "RU", 26, "RUB", 35000, "text data - survey 7");
+		addSurvey(8, "81111601", "F", "ES", 45, "EUR", 45000, "text data - survey 9");
+		addSurvey(9, "81111601", "F", "US", 55, "USD", 55000, "text data - survey 10");
+		addSurvey(10, "81111607", "M", "US", 47, "USD", 50000, "text data - survey 11");
+		addSurvey(11, "81111608", "F", "US", 61, "USD", 51000, "text data - survey 12");
+		addSurvey(12, "81111608", "M", "US", 21, "USD", 34000, "text data - survey 13");
+		addSurvey(13, "81111608", "M", "ES", 34, "EUR", 55000, "text data - survey 14");
+		addSurvey(14, "81111609", "M", "ES", 28, "EUR", 19000, "text data - survey 15");
+		addSurvey(15, "81111608", "M", "RU", 28, "RUB", 39000, "text data - survey 16");
+		addSurvey(16, "81111607", "M", "US", 48, "USD", 34000, "text data - survey 17");
+		addSurvey(17, "81111607", "M", "US", 49, "USD", 35000, "text data - survey 18");
+		addSurvey(18, "81111607", "M", "US", 49, "USD", 44000, "text data - survey 19");
+		addSurvey(19, "81111607", "M", "US", 34, "USD", 46000, "text data - survey 20");
 		log.info("Surveys loaded...");
 	}
 	
@@ -71,9 +69,12 @@ public class ProviderMngImpl implements ProviderMng {
 	 * @param age - Age
 	 * @param currency - Currency
 	 * @param income - income
+	 * @param anyData - Any additional data
 	 */
-	private void addSurvey(Integer id, String subject, String gender, String country, Integer age, String currency, Integer income) {
-		MarketSurvey survey = new MarketSurvey(id, subject, gender, country, age, currency, income);
+	private void addSurvey(Integer id, String subject, String gender, 
+			String country, Integer age, String currency, Integer income,
+			String anyData) {
+		MarketSurvey survey = new MarketSurvey(id, subject, gender, country, age, currency, income, anyData);
 		mrep.save(survey);
 	}
 
@@ -117,7 +118,7 @@ public class ProviderMngImpl implements ProviderMng {
  			if (t.getSubscription()!=null && t.getSubscription().getChannel().contains("rest")) {
  				// Way of delivery - RESTful
 	 	 		List<MarketSurvey> lst = getSurvey(t, false);
-		 		String url = "http://localhost:8089/postSurvey"; // TODO
+		 		String url = t.getSubscription().getEndPoint()+"/postSurvey";
 		 		log.info("");
 		 		log.info("Market Survey Provider: SEND SUBSCRIPTION: Cosumer.id={}, size={}, Url={}", t.getRequester().getId(), lst.size(), url);
 		 		
